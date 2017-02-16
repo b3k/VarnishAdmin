@@ -190,7 +190,19 @@ class VarnishAdminSocket implements VarnishAdmin
 
         return $response;
     }
-
+    
+    public function cast_command($cmd)
+    {
+        if (!$this->host) {
+            return null;
+        }
+        stream_set_blocking($this->fp, 0);
+        $cmd && $this->write($cmd);
+        $this->write("\n");
+        stream_set_blocking($this->fp, 1);
+        return true;
+    }
+    
     /**
      * Write data to the socket input stream.
      *
@@ -221,6 +233,11 @@ class VarnishAdminSocket implements VarnishAdmin
     public function purge($expr)
     {
         return $this->command($this->purgeCommand . ' ' . $expr);
+    }
+    
+    public function cast_purge($expr)
+    {
+        return $this->cast_command($this->purgeCommand . ' ' . $expr);
     }
 
     /**
